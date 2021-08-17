@@ -4,8 +4,11 @@ var circleMass = [];
 var verticalLineMass = [];
 var horizontallLineMass = []
 var coord_arr = [];
-var dimension = Math.floor(Math.random() * (21 - 6)) + 6;
-//var dimension = 2;
+var massCircle = [{x:700,y:175},{x:725,y:175},{x:750,y:175},{x:775,y:175},{x:675,y:200},{x:725,y:200},{x:750,y:200},{x:800,y:200},{x:725,y:225},{x:750,y:225}];
+var massVerticalLine = [{x:700,y:225},{x:775,y:225},{x:700,y:250},{x:775,y:250}];
+var massHorizontallLine = [{x:700,y:225},{x:725,y:225},{x:750,y:225},{x:700,y:275},{x:725,y:275},{x:750,y:275}];
+//var dimension = Math.floor(Math.random() * (21 - 6)) + 6;
+var dimension = 6;
 console.log(dimension);
 var size = 25;
 const renderer = new PIXI.Application({ width, height, backgroundColor: 0xD5D5D5, resolution: window.devicePixelRatio || 1,autoResize: true,antialias: true});
@@ -17,12 +20,12 @@ basicText.x = 420;
 basicText.y = 25;
 renderer.stage.addChild(basicText);
 
-const leftText = new PIXI.Text('Образец',{ fontName: 'Desyrel', align: 'eenter' });
+const leftText = new PIXI.Text('Образец',{ fontName: 'Desyrel', align: 'center' });
 leftText.x = 820;
 leftText.y = 100;
 renderer.stage.addChild(leftText);
 
-const rigthText = new PIXI.Text('Оригинал',{ fontName: 'Desyrel', align: 'eenter' });
+const rigthText = new PIXI.Text('Оригинал',{ fontName: 'Desyrel', align: 'center' });
 rigthText.x = 220;
 rigthText.y = 100;
 renderer.stage.addChild(rigthText);
@@ -223,6 +226,40 @@ class HorizontallLine
 		}
 	}
 }
+class ImgSample
+{
+	constructor()
+	{
+		for (var i = 0; i < massCircle.length; i++)
+		{
+			var circleSample = new PIXI.Graphics();
+			circleSample.lineStyle(1,0x000000);
+			circleSample.drawCircle(0, 0, 10);
+			circleSample.position.x = massCircle[i].x;
+			circleSample.position.y = massCircle[i].y;
+			renderer.stage.addChild(circleSample);
+		}
+		for (var i = 0; i < massVerticalLine.length; i++)
+		{
+			var verticalLineSample = new PIXI.Graphics();
+			verticalLineSample.lineStyle(1,0x000000);
+			verticalLineSample.drawRect(0,0,1,25);
+			verticalLineSample.position.x = massVerticalLine[i].x;
+			verticalLineSample.position.y = massVerticalLine[i].y;
+			renderer.stage.addChild(verticalLineSample);
+		}
+		for (var i = 0; i < massHorizontallLine.length; i++)
+		{
+			var horizontallLineSample = new PIXI.Graphics();
+			horizontallLineSample.lineStyle(1,0x000000);
+			horizontallLineSample.drawRect(0,0,25,1);
+			horizontallLineSample.position.x = massHorizontallLine[i].x;
+			horizontallLineSample.position.y = massHorizontallLine[i].y;
+			console.log(massHorizontallLine[i].x);
+			renderer.stage.addChild(horizontallLineSample);
+		}
+	}
+}
 class Сoord_arr
 {
 	constructor(startX,startY,size)
@@ -240,11 +277,13 @@ class Сoord_arr
 		console.log(coord_arr);
 	}
 }
+
 new FieldOriginal(0x3D85C6,size);
 new FieldSample(0x3D85C6,size);
 new Circle(200,750,0xFFFFFF,12.5);
 new VerticalLine(597,715,0xFFFFFF);
 new HorizontallLine(865,747,0xFFFFFF);
+new ImgSample();
 
 
 function OnDragStart(event)
