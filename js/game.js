@@ -1,16 +1,21 @@
 var width = 1200; //получаем ширину экрана
-var height = 800; // получаем высоту экрана
+var height = 850; // получаем высоту экрана
 var circleMass = [];
 var verticalLineMass = [];
 var horizontallLineMass = []
 var coord_arr = [];
-var massCircle = [{x:700,y:175},{x:725,y:175},{x:750,y:175},{x:775,y:175},{x:675,y:200},{x:725,y:200},{x:750,y:200},{x:800,y:200},{x:725,y:225},{x:750,y:225}];
-var massVerticalLine = [{x:700,y:225},{x:775,y:225},{x:700,y:250},{x:775,y:250}];
-var massHorizontallLine = [{x:700,y:225},{x:725,y:225},{x:750,y:225},{x:700,y:275},{x:725,y:275},{x:750,y:275}];
+var massCircle = [{x:720,y:290},{x:790,y:220},{x:860,y:220},{x:930,y:220},{x:1000,y:220},{x:860,y:290},{x:930,y:290},{x:1070,y:290},{x:860,y:360},{x:930,y:360}];
+var massVerticalLine = [{x:790,y:360},{x:790,y:430},{x:1000,y:360},{x:1000,y:430}];
+var massHorizontallLine = [{x:790,y:360},{x:860,y:360},{x:930,y:360},{x:790,y:500},{x:860,y:500},{x:930,y:500}];
+//Константы для фона
+const verticalLinesFon = new PIXI.Graphics();
+const horizontallLinesFon = new PIXI.Graphics();
+const circlesFon = new PIXI.Graphics();
 //var dimension = Math.floor(Math.random() * (21 - 6)) + 6;
 var dimension = 6;
+var p = 0;
 console.log(dimension);
-var size = 25;
+var size = 70;
 const renderer = new PIXI.Application({ width, height, backgroundColor: 0xD5D5D5, resolution: window.devicePixelRatio || 1,autoResize: true,antialias: true});
 document.body.appendChild(renderer.view);
 var stage = new PIXI.Graphics();
@@ -46,6 +51,14 @@ divisionLine.moveTo(0,700);
 divisionLine.lineTo(width,700);
 renderer.stage.addChild(divisionLine);
 
+const clearText = new PIXI.Text('Очистить Поле',{ fontName: 'Desyrel', align: 'center' });
+clearText.x = 500;
+clearText.y = 800;
+clearText.interactive = true;
+clearText.buttonMode = true;
+clearText.on('pointerdown', onClick);
+renderer.stage.addChild(clearText);
+
 class FieldOriginal
 {
 	constructor(colors, size)
@@ -60,7 +73,7 @@ class FieldOriginal
 		{
 			for (var j = 0; j < dimension; j++)
 			{
-				fieldOriginal.lineStyle(1, colors);
+				fieldOriginal.lineStyle(2, colors);
 				fieldOriginal.drawRect(startX+j*size, startY+i*size, size, size);
 			}
 		}
@@ -80,7 +93,7 @@ class FieldSample
 		{
 			for (var j = 0; j < dimension; j++)
 			{
-				fieldSample.lineStyle(1, colors);
+				fieldSample.lineStyle(2, colors);
 				fieldSample.drawRect(startX+j*size, startY+i*size, size, size);
 			}
 		}
@@ -94,12 +107,12 @@ class Circle
 		this.x = x;
 		this.y = y;
 		this.colors = colors;
-		this.size = size;	
+		this.size = size;
 		var circle = new PIXI.Graphics();
 		circle.interactive = true;
 		circle.buttonMode = true;
-		circle.lineStyle(1,colors);
-		circle.beginFill();
+		circle.lineStyle(1,0x000000);
+		circle.beginFill(0x000000,0.0000001);
 		circle.drawCircle(0, 0, size);
 		circle
 			.on('pointerdown', OnDragStart)
@@ -114,16 +127,14 @@ class Circle
 		{
 			for (var i = 0; i < coord_arr.length; i++)
 			{
-				if ((this.position.x > coord_arr[i].x - 12.5 && this.position.x < coord_arr[i].x + 12.5) && (this.position.y > coord_arr[i].y - 12.5 && this.position.y < coord_arr[i].y + 12.5))
+				if ((this.position.x > coord_arr[i].x - 35 && this.position.x < coord_arr[i].x + 35) && (this.position.y > coord_arr[i].y - 35 && this.position.y < coord_arr[i].y + 35))
 				{
 					var circles = new PIXI.Graphics();
 					circles.lineStyle(1,0x000000);
-					circles.drawCircle(0, 0, 10);
+					circles.drawCircle(0, 0, 25);
 					circles.position.x = coord_arr[i].x;
 					circles.position.y = coord_arr[i].y;
-					console.log(coord_arr[i].x);
 					renderer.stage.addChild(circles);
-					console.log("Попал");
 				}
 			}
 			this.alpha = 1;
@@ -131,6 +142,27 @@ class Circle
 			this.data = null;
 			this.position.x = this.dragObjStart.x;
 			this.position.y = this.dragObjStart.y;
+		}
+		function OnDragMove()
+		{
+			circlesFon.clear();
+			if (this.dragging)
+			{
+				var newPosition = this.data.getLocalPosition(this.parent);
+				this.position.x = newPosition.x;
+				this.position.y = newPosition.y;
+				for (var i = 0; i < coord_arr.length; i++)
+				{
+					if ((this.position.x > coord_arr[i].x - 35 && this.position.x < coord_arr[i].x + 35) && (this.position.y > coord_arr[i].y - 35 && this.position.y < coord_arr[i].y + 35))
+					{
+						circlesFon.lineStyle(1,0x000000);
+						circlesFon.drawCircle(0, 0, 25);
+						circlesFon.position.x = coord_arr[i].x;
+						circlesFon.position.y = coord_arr[i].y;
+						renderer.stage.addChild(circlesFon);
+					}
+				}
+			}
 		}
 	}
 }
@@ -160,16 +192,14 @@ class VerticalLine
 		{
 			for (var i = 0; i < coord_arr.length; i++)
 			{
-				if ((this.position.x > coord_arr[i].x - 12 && this.position.x < coord_arr[i].x + 12) && (this.position.y > coord_arr[i].y - 12 && this.position.y < coord_arr[i].y + 12))
+				if ((this.position.x > coord_arr[i].x - 35 && this.position.x < coord_arr[i].x + 35) && (this.position.y > coord_arr[i].y - 35 && this.position.y < coord_arr[i].y + 35))
 				{
 					var verticalLines = new PIXI.Graphics();
 					verticalLines.lineStyle(1,0x000000);
-					verticalLines.drawRect(0,0,1,25);
+					verticalLines.drawRect(0,0,1,70);
 					verticalLines.position.x = coord_arr[i].x;
 					verticalLines.position.y = coord_arr[i].y;
-					console.log(coord_arr[i].x);
 					renderer.stage.addChild(verticalLines);
-					console.log("Попал Линия Вертикальная");
 				}
 			}
 			this.alpha = 1;
@@ -177,6 +207,27 @@ class VerticalLine
 			this.data = null;
 			this.position.x = this.dragObjStart.x;
 			this.position.y = this.dragObjStart.y;
+		}
+		function OnDragMove()
+		{
+			verticalLinesFon.clear();
+			if (this.dragging)
+			{
+				var newPosition = this.data.getLocalPosition(this.parent);
+				this.position.x = newPosition.x;
+				this.position.y = newPosition.y;
+				for (var i = 0; i < coord_arr.length; i++)
+				{
+					if ((this.position.x > coord_arr[i].x - 35 && this.position.x < coord_arr[i].x + 35) && (this.position.y > coord_arr[i].y - 35 && this.position.y < coord_arr[i].y + 35))
+					{
+						verticalLinesFon.lineStyle(1, 0x000000);
+						verticalLinesFon.drawRect(0, 0, 1, 70);
+						verticalLinesFon.position.x = coord_arr[i].x;
+						verticalLinesFon.position.y = coord_arr[i].y;
+						renderer.stage.addChild(verticalLinesFon);
+					}
+				}
+			}
 		}
 	}
 }
@@ -206,16 +257,14 @@ class HorizontallLine
 		{
 			for (var i = 0; i < coord_arr.length; i++)
 			{
-				if ((this.position.x > coord_arr[i].x - 12 && this.position.x < coord_arr[i].x + 12) && (this.position.y > coord_arr[i].y - 12 && this.position.y < coord_arr[i].y + 12))
+				if ((this.position.x > coord_arr[i].x - 35 && this.position.x < coord_arr[i].x + 35) && (this.position.y > coord_arr[i].y - 35 && this.position.y < coord_arr[i].y + 35))
 				{
 					var horizontallLines = new PIXI.Graphics();
 					horizontallLines.lineStyle(1,0x000000);
-					horizontallLines.drawRect(0,0,25,1);
+					horizontallLines.drawRect(0,0,70,1);
 					horizontallLines.position.x = coord_arr[i].x;
 					horizontallLines.position.y = coord_arr[i].y;
-					console.log(coord_arr[i].x);
 					renderer.stage.addChild(horizontallLines);
-					console.log("Попал линия горизонтальная");
 				}
 			}
 			this.alpha = 1;
@@ -223,6 +272,27 @@ class HorizontallLine
 			this.data = null;
 			this.position.x = this.dragObjStart.x;
 			this.position.y = this.dragObjStart.y;
+		}
+		function OnDragMove()
+		{
+			horizontallLinesFon.clear();
+			if (this.dragging)
+			{
+				var newPosition = this.data.getLocalPosition(this.parent);
+				this.position.x = newPosition.x;
+				this.position.y = newPosition.y;
+				for (var i = 0; i < coord_arr.length; i++)
+				{
+					if ((this.position.x > coord_arr[i].x - 35 && this.position.x < coord_arr[i].x + 35) && (this.position.y > coord_arr[i].y - 35 && this.position.y < coord_arr[i].y + 35))
+					{
+						horizontallLinesFon.lineStyle(1, 0x000000);
+						horizontallLinesFon.drawRect(0, 0, 70, 1);
+						horizontallLinesFon.position.x = coord_arr[i].x;
+						horizontallLinesFon.position.y = coord_arr[i].y;
+						renderer.stage.addChild(horizontallLinesFon);
+					}
+				}
+			}
 		}
 	}
 }
@@ -234,7 +304,7 @@ class ImgSample
 		{
 			var circleSample = new PIXI.Graphics();
 			circleSample.lineStyle(1,0x000000);
-			circleSample.drawCircle(0, 0, 10);
+			circleSample.drawCircle(0, 0, 25);
 			circleSample.position.x = massCircle[i].x;
 			circleSample.position.y = massCircle[i].y;
 			renderer.stage.addChild(circleSample);
@@ -243,7 +313,7 @@ class ImgSample
 		{
 			var verticalLineSample = new PIXI.Graphics();
 			verticalLineSample.lineStyle(1,0x000000);
-			verticalLineSample.drawRect(0,0,1,25);
+			verticalLineSample.drawRect(0,0,1,70);
 			verticalLineSample.position.x = massVerticalLine[i].x;
 			verticalLineSample.position.y = massVerticalLine[i].y;
 			renderer.stage.addChild(verticalLineSample);
@@ -252,10 +322,9 @@ class ImgSample
 		{
 			var horizontallLineSample = new PIXI.Graphics();
 			horizontallLineSample.lineStyle(1,0x000000);
-			horizontallLineSample.drawRect(0,0,25,1);
+			horizontallLineSample.drawRect(0,0,70,1);
 			horizontallLineSample.position.x = massHorizontallLine[i].x;
 			horizontallLineSample.position.y = massHorizontallLine[i].y;
-			console.log(massHorizontallLine[i].x);
 			renderer.stage.addChild(horizontallLineSample);
 		}
 	}
@@ -274,13 +343,12 @@ class Сoord_arr
 				});
 			}
 		}
-		console.log(coord_arr);
 	}
 }
 
 new FieldOriginal(0x3D85C6,size);
 new FieldSample(0x3D85C6,size);
-new Circle(200,750,0xFFFFFF,12.5);
+new Circle(200,750,0xFFFFFF,25);
 new VerticalLine(597,715,0xFFFFFF);
 new HorizontallLine(865,747,0xFFFFFF);
 new ImgSample();
@@ -294,12 +362,6 @@ function OnDragStart(event)
     this.dragObjStart = new PIXI.Point();
     this.dragObjStart.copyFrom(this.position);
 }
-function OnDragMove()
-{
-    if (this.dragging)
-    {
-        var newPosition = this.data.getLocalPosition(this.parent);
-        this.position.x = newPosition.x;
-        this.position.y = newPosition.y;
-    }
+function onClick() {
+	location.reload(); // перезагружаем страницу
 }
